@@ -3,18 +3,17 @@ spring:
     name: query-engine
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/query_engine
-    username: postgres
-    password: uche1234
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
 
-    server:
-      port: 8080
+  jackson:
+    time-zone: UTC
 
-      spring:
-        jackson:
-          time-zone: UTC
+server:
+  port: 8080

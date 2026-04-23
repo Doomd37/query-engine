@@ -40,12 +40,13 @@ public class ProfileService {
         Page<Profile> result =
                 repo.findAll(ProfileSpecification.build(r), pageable);
 
-        return new PagedResponse<>(
-                r.getPage(),
-                r.getLimit(),
-                result.getTotalElements(),
-                result.getContent()
-        );
+        return PagedResponse.<List<Profile>>builder()
+                .status("success")
+                .page(r.getPage())
+                .limit(r.getLimit())
+                .total(result.getTotalElements())
+                .data(result.getContent())
+                .build();
     }
 
     public PagedResponse<List<Profile>> search(String q, int page, int limit) {
@@ -59,12 +60,16 @@ public class ProfileService {
 
     private Sort buildSort(ProfileFilterRequest r) {
 
-        String sortBy = r.getSortBy() == null ? "createdAt" : r.getSortBy();
+        String sortBy = (r.getSortBy() == null)
+                ? "createdAt"
+                : r.getSortBy();
 
         if (!ALLOWED_SORT.contains(sortBy))
             throw new UnprocessableException("Invalid query parameters");
 
-        String order = r.getOrder() == null ? "asc" : r.getOrder();
+        String order = (r.getOrder() == null)
+                ? "asc"
+                : r.getOrder();
 
         return Sort.by(Sort.Direction.fromString(order), sortBy);
     }
