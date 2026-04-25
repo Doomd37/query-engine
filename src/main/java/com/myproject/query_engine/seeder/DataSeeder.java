@@ -1,5 +1,6 @@
 package com.myproject.query_engine.seeder;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.myproject.query_engine.entity.Profile;
 import com.myproject.query_engine.repository.ProfileRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +17,7 @@ import java.util.List;
 public class DataSeeder implements CommandLineRunner {
 
     private final ProfileRepository repository;
-    private final ObjectMapper mapper = new ObjectMapper(); // FIX: no Spring injection needed
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public DataSeeder(ProfileRepository repository) {
         this.repository = repository;
@@ -25,30 +26,26 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(@Nonnull String... args) throws Exception {
 
-        // Load JSON file from resources
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+
         InputStream input = getClass().getResourceAsStream("/seed_profiles.json");
 
         if (input == null) {
             throw new RuntimeException("profiles.json not found in resources folder");
         }
 
-        // Read root JSON object
         JsonNode root = mapper.readTree(input);
-
-        // Extract "profiles" array from JSON
         JsonNode profilesNode = root.get("profiles");
 
         if (profilesNode == null || !profilesNode.isArray()) {
             throw new RuntimeException("Invalid JSON format: 'profiles' array missing");
         }
 
-        // Convert JSON array → List<Profile>
         List<Profile> profiles = mapper.readValue(
                 profilesNode.toString(),
                 new TypeReference<List<Profile>>() {}
         );
 
-        // Save with duplicate protection
         for (Profile p : profiles) {
             if (!repository.existsByName(p.getName())) {
                 repository.save(p);

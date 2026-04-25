@@ -19,34 +19,22 @@ public class Profile {
     @Id
     private UUID id;
 
-    @Column(unique = true, nullable = false)
     private String name;
-
     private String gender;
 
-    @JsonProperty("gender_probability")
     private Double genderProbability;
-
     private Integer age;
 
-    @JsonProperty("age_group")
     private String ageGroup;
-
-    @JsonProperty("country_id")
     private String countryId;
-
-    @JsonProperty("country_name")
     private String countryName;
 
-    @JsonProperty("country_probability")
     private Double countryProbability;
-
-    @JsonProperty("created_at")
     private Instant createdAt;
 
     @PrePersist
     public void prePersist() {
-        if (id == null) id = UuidCreator.getTimeOrderedEpoch(); // UUID v7
+        if (id == null) id = UuidCreator.getTimeOrderedEpoch();
         if (createdAt == null) createdAt = Instant.now();
     }
 }

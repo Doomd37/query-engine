@@ -7,43 +7,69 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfileSpecification {
 
-    public static Specification<Profile> build(ProfileFilterRequest req) {
+    public static Specification<Profile> build(ProfileFilterRequest r) {
         return (root, query, cb) -> {
 
-            List<Predicate> predicates = new ArrayList<>();
+            List<Predicate> p = new ArrayList<>();
 
-            if (req.getGender() != null) {
-                predicates.add(cb.equal(root.get("gender"), req.getGender()));
+            // Gender (case-insensitive)
+            if (r.getGender() != null) {
+                p.add(cb.equal(
+                        cb.lower(root.get("gender")),
+                        r.getGender().toLowerCase()
+                ));
             }
 
-            if (req.getAgeGroup() != null) {
-                predicates.add(cb.equal(root.get("ageGroup"), req.getAgeGroup()));
+            // Age group (case-insensitive)
+            if (r.getAgeGroup() != null) {
+                p.add(cb.equal(
+                        cb.lower(root.get("ageGroup")),
+                        r.getAgeGroup().toLowerCase()
+                ));
             }
 
-            if (req.getCountryId() != null) {
-                predicates.add(cb.equal(root.get("countryId"), req.getCountryId()));
+            // Country ID (case-insensitive)
+            if (r.getCountryId() != null) {
+                p.add(cb.equal(
+                        cb.upper(root.get("countryId")),
+                        r.getCountryId().toUpperCase()
+                ));
             }
 
-            if (req.getMinAge() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("age"), req.getMinAge()));
+            // Age filters
+            if (r.getMinAge() != null) {
+                p.add(cb.greaterThanOrEqualTo(root.get("age"), r.getMinAge()));
             }
 
-            if (req.getMaxAge() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("age"), req.getMaxAge()));
+            if (r.getMaxAge() != null) {
+                p.add(cb.lessThanOrEqualTo(root.get("age"), r.getMaxAge()));
             }
 
-            if (req.getMinGenderProbability() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("genderProbability"), req.getMinGenderProbability()));
+            // Gender probability (STRICT >=)
+            if (r.getMinGenderProbability() != null) {
+                p.add(cb.greaterThanOrEqualTo(
+                        root.get("genderProbability"),
+                        r.getMinGenderProbability()
+                ));
             }
 
-            if (req.getMinCountryProbability() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("countryProbability"), req.getMinCountryProbability()));
+            // Country probability (STRICT >=)
+            if (r.getMinCountryProbability() != null) {
+                p.add(cb.greaterThanOrEqualTo(
+                        root.get("countryProbability"),
+                        r.getMinCountryProbability()
+                ));
             }
 
-            return cb.and(predicates.toArray(new Predicate[0]));
+            return cb.and(p.toArray(new Predicate[0]));
         };
     }
 }

@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/query_engine
+    username: postgres
+    password: uche1234
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    time-zone: UTC

@@ -13,6 +13,7 @@ spring:
     show-sql: true
 
   jackson:
+    property-naming-strategy: SNAKE_CASE
     time-zone: UTC
 
 server:
