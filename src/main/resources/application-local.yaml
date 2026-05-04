@@ -7,3 +7,6 @@ spring:
   jackson:
     property-naming-strategy: SNAKE_CASE
     time-zone: UTC
+
+    jwt:
+      secret: dev-local-secret-very-strong-123456789
