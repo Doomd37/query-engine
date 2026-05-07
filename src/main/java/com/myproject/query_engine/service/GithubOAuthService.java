@@ -18,6 +18,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GithubOAuthService {
 
+    private final WebClient webClient;
+
     @Value("${github.client-id}")
     private String clientId;
 
@@ -27,50 +29,26 @@ public class GithubOAuthService {
     @Value("${github.redirect-uri}")
     private String redirectUri;
 
-    private final WebClient webClient;
-    private final UserRepository userRepository;
-    private final AuthService authService;
+    public GithubUserResponse getUser(String code) {
 
-    public AuthResponse login(String code) {
+        GithubTokenResponse tokenResponse = webClient.post()
+                .uri("https://github.com/login/oauth/access_token")
+                .header("Accept", "application/json")
+                .bodyValue(Map.of(
+                        "client_id", clientId,
+                        "client_secret", clientSecret,
+                        "code", code,
+                        "redirect_uri", redirectUri
+                ))
+                .retrieve()
+                .bodyToMono(GithubTokenResponse.class)
+                .block();
 
-        GithubTokenResponse tokenResponse =
-                webClient.post()
-                        .uri("https://github.com/login/oauth/access_token")
-                        .header("Accept", "application/json")
-                        .bodyValue(Map.of(
-                                "client_id", clientId,
-                                "client_secret", clientSecret,
-                                "code", code,
-                                "redirect_uri", redirectUri
-                        ))
-                        .retrieve()
-                        .bodyToMono(GithubTokenResponse.class)
-                        .block();
-
-        GithubUserResponse githubUser =
-                webClient.get()
-                        .uri("https://api.github.com/user")
-                        .header("Authorization", "Bearer " + tokenResponse.getAccessToken())
-                        .retrieve()
-                        .bodyToMono(GithubUserResponse.class)
-                        .block();
-
-        User user = userRepository
-                .findByGithubId(String.valueOf(githubUser.getId()))
-                .orElseGet(() -> {
-
-                    Role role = Role.ANALYST;
-
-                    return userRepository.save(
-                            User.builder()
-                                    .githubId(String.valueOf(githubUser.getId()))
-                                    .username(githubUser.getLogin())
-                                    .email(githubUser.getEmail())
-                                    .role(role)
-                                    .build()
-                    );
-                });
-
-        return authService.generateTokens(user);
+        return webClient.get()
+                .uri("https://api.github.com/user")
+                .header("Authorization", "Bearer " + tokenResponse.getAccessToken())
+                .retrieve()
+                .bodyToMono(GithubUserResponse.class)
+                .block();
     }
 }
