@@ -44,4 +44,4 @@ build/
 # OS
 .DS_Store
 
-application-local.yml
+src/main/resources/application-local.yaml
