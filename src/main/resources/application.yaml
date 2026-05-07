@@ -23,3 +23,8 @@ server:
     secret: ${JWT_SECRET:8f92a6d1c6e5b4a32f8c7d6e5a4b3c2d1e0f1a8b7c6d5e4f3a2b1c0d9e8f7a6}
     access-expiration: 900000
     refresh-expiration: 86400000
+
+  github:
+      client-id: ${Ov23liRpAZXRVkHXX97y}
+      client-secret: ${71f159c9da0808f3053c66670ec5932d0f931d3b}
+      redirect-uri: http://localhost:8080/api/v1/auth/github/callback
